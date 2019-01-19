@@ -24,6 +24,13 @@ img = pygame.image.load('cat.png') # only loading image one time doing this as o
 def gameOver():
     alertSurface('X_X')
 
+def displayScore(count):
+    font = pygame.font.Font('freesansbold.ttf', 20)
+    text = font.render("Score: " + str(count), True, white)
+    screen.blit(text, [0,0])
+
+
+
 def blocks(x_block, y_block, blockWidth, blockHeight, gap):
     pygame.draw.rect(screen, purple, [x_block, y_block, blockWidth, blockHeight]) #draw purple rectangle to surface
     pygame.draw.rect(screen, purple, [x_block, y_block + blockHeight + gap, blockWidth, screenHeight]) #draw purple rectangle to surface from bottom of screen including gap size
@@ -71,15 +78,16 @@ def cat(x, y, image): # takes an x and y coordinate and image to be loaded
 def main():
     x = 100
     y = 200
-    characterYMove = 3
+    characterYMove = 1 # rate character is default to fall
 
     x_block = screenWidth
     y_block = 0
     blockWidth = 60
     blockHeight = randint(0,screenHeight)
     gap = characterHeight * 2.5
-    blockMove = 4
+    blockMove = 4 # rate blocks are moved left off of screen
 
+    score = 0
     game_over = False
 
     while not game_over:
@@ -89,17 +97,19 @@ def main():
 
             if event.type == pygame.KEYDOWN: #if keydown, keyboard up arrow detected, move character up
                 if event.key == pygame.K_UP:
-                    characterYMove = -2
+                    characterYMove = -2.5
 
             if event.type == pygame.KEYUP: #if keyboard up arrow detected up/depressed, move character down
                 if event.key == pygame.K_UP:
                     characterYMove = 2
 
         y = y + characterYMove #update y based on pressed movement
-        screen.fill(grey) #black background
+        screen.fill(grey) #black background drawn
         cat(x, y, img)
 
+
         blocks(x_block, y_block, blockWidth, blockHeight, gap)
+        displayScore(score) # score on top of blocks and background
         x_block = (x_block - blockMove) # update block position
 
         if y > (screenHeight - characterHeight) or y < 0: #window collision detection for game over
@@ -126,6 +136,12 @@ def main():
                     print('game over LOWER bound hit')
                     gameOver()
 
+        if  x > (x_block + blockMove + characterWidth):
+            score = score + 1
+            print('CLEARED!')
+
+        if score == 49:
+            blockMove = blockMove + .01 #increase difficulty in speed at score of 49
 
         pygame.display.update()
         clock.tick(fps) #runs this main loop 60(fps) times a second
